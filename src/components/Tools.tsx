@@ -1,6 +1,7 @@
 'use client';
 
-import { DataTools } from "@/types/cmp.tools";
+import { DataTools } from '@/types/cmp.tools';
+import clsx from 'clsx';
 
 interface ToolsProps {
   tools: DataTools[];
@@ -19,7 +20,12 @@ const Text = (props) => {
 
 const Image = (props) => {
   const { data } = props.data;
-  return <img src={data.content} alt={data.content} />;
+  return (
+    <img
+      src={data.content}
+      alt={data.content}
+    />
+  );
 };
 
 const types = {
@@ -34,17 +40,28 @@ const RenderTool = ({ type, ...props }) => {
 };
 
 export const Tools = ({ tools }: ToolsProps) => {
-  return tools.map((tool, key) => {
-    return (
-      <div
-        key={`${tool.tool_id}-${key}`}
-        className='bg-yellow-300 w-full my-1'
-      >
-        <RenderTool
-          type={tool.type}
-          data={tool}
-        />
-      </div>
-    );
-  });
+  return tools
+    .sort((a, b) => (a.data?.y ?? 0) - (b.data?.y ?? 0))
+    .map((tool, key) => {
+      const { align, width, x, y } = tool.data;
+      return (
+        <div
+          key={`${tool.tool_id}-${key}`}
+          className={clsx('w-full my-1 flex hover:bg-zinc-800 bg-zinc-800', {
+            'justify-start text-left': align == 'left',
+            'justify-end text-right': align == 'right',
+            'justify-center text-center col-span-2': align == 'center',
+            'col-span-4': !x,
+          })}
+          style={{
+            gridColumn: x,
+          }}
+        >
+          <RenderTool
+            type={tool.type}
+            data={tool}
+          />
+        </div>
+      );
+    });
 };

@@ -1,5 +1,6 @@
 export type Data = {
-  loadOrder: [number, number];
+  x?: number;
+  y?: number;
   width?: number;
   align?: 'left' | 'right' | 'center';
   content?: string | number;
