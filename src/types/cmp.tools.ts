@@ -1,6 +1,6 @@
 export type Data = {
   x?: number;
-  y?: number;
+  y: number;
   width?: number;
   align?: 'left' | 'right' | 'center';
   content?: string | number;

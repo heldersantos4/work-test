@@ -2,6 +2,7 @@
 
 import { DataTools } from '@/types/cmp.tools';
 import clsx from 'clsx';
+import { title } from 'process';
 
 interface ToolsProps {
   tools: DataTools[];
@@ -12,6 +13,11 @@ interface ToolsProps {
  * Tool
  * renderTool
  */
+
+const Title = (props) => {
+  const { data } = props.data;
+  return <h1 className='font-bold text-2xl'>{data.content}</h1>;
+};
 
 const Text = (props) => {
   const { data } = props.data;
@@ -31,6 +37,7 @@ const Image = (props) => {
 const types = {
   text: Text,
   image: Image,
+  title: Title
 };
 
 const RenderTool = ({ type, ...props }) => {
@@ -40,28 +47,42 @@ const RenderTool = ({ type, ...props }) => {
 };
 
 export const Tools = ({ tools }: ToolsProps) => {
-  return tools
-    .sort((a, b) => (a.data?.y ?? 0) - (b.data?.y ?? 0))
-    .map((tool, key) => {
-      const { align, width, x, y } = tool.data;
-      return (
-        <div
-          key={`${tool.tool_id}-${key}`}
-          className={clsx('w-full my-1 flex hover:bg-zinc-800 bg-zinc-800', {
-            'justify-start text-left': align == 'left',
-            'justify-end text-right': align == 'right',
-            'justify-center text-center col-span-2': align == 'center',
-            'col-span-4': !x,
-          })}
-          style={{
-            gridColumn: x,
-          }}
-        >
-          <RenderTool
-            type={tool.type}
-            data={tool}
-          />
+
+  const groupedTools: DataTools[][] = [];
+  tools.forEach(tool => {
+    const rowIndex = tool.data.y - 1; // Ajustar para índice base 0
+    if (!groupedTools[rowIndex]) {
+      groupedTools[rowIndex] = [];
+    }
+    groupedTools[rowIndex].push(tool);
+  });
+
+  // Ordenar as ferramentas em cada linha com base na coordenada x
+  groupedTools.forEach(row => {
+    row.sort((a, b) => (a.data?.x ?? 0) - (b.data?.x ?? 0));
+  });
+
+  console.log(groupedTools)
+
+  return (
+    <>
+      {groupedTools.map((row, rowIndex) => (
+        <div key={`row-${rowIndex}`} className="flex">
+          {row.map((tool, toolIndex) => (
+            <div
+              key={`tool-${rowIndex}-${toolIndex}`}
+              className={clsx('w-full my-1 flex hover:bg-zinc-800', {
+                'justify-start text-left': tool.data.align === 'left',
+                'justify-end text-right': tool.data.align === 'right',
+                'justify-center text-center col-span-2': tool.data.align === 'center',
+              })}
+            >
+              <RenderTool type={tool.type} data={tool} />
+            </div>
+          ))}
         </div>
-      );
-    });
+      ))}
+    </>
+  );
+
 };
